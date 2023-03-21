@@ -1,0 +1,15 @@
+{
+  "name": "simple-vast-server",
+  "version": "0.0.1",
+  "description": "Simple VAST server example",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Julian Santana <jkamiphi@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "xmlbuilder": "^15.1.1"
+  }
+}
