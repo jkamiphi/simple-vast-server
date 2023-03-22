@@ -69,6 +69,10 @@ app.get('/vast/:contentId', (req, res) => {
     offset: '00:00:30'
   }).dat('http://example.com/complete');
 
+  const iconClicks = linear.ele('IconClicks');
+
+  iconClicks.ele('IconClickTracking', {}).dat('https://development.palenquetv.com/images/icons/icon-128x128.png')
+
   const videoClicks = linear.ele('VideoClicks');
 
   videoClicks.ele('ClickTracking', {}).dat('https://iabtechlab.com');
