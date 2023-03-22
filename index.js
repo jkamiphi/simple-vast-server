@@ -1,52 +1,105 @@
 const express = require('express');
-const xmlbuilder = require('xmlbuilder');
+const xmlbuilder = require('xmlbuilder2');
+const helmet = require('helmet');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-  const xml = xmlbuilder.create('VAST', { version: '1.0', encoding: 'UTF-8' })
-    .att('version', '4.0')
-    .ele('Ad')
-    .ele('InLine')
-    .ele('AdSystem', 'Acme Ads')
-    .up()
-    .ele('AdTitle', 'Example VAST Ad')
-    .up()
-    .ele('Impression').cdata('https://example.com/impression').up()
-    .ele('Creatives')
-    .ele('Creative')
-    .ele('Linear')
-    .ele('Duration', '00:00:10').up()
-    .ele('VideoClicks')
-    .ele('ClickThrough').cdata('https://example.com/click').up()
-    .up()
-    .ele('MediaFiles')
-    .ele('MediaFile')
-    .att('type', 'video/mp4')
-    .att('width', '640')
-    .att('height', '360')
-    .att('delivery', 'progressive')
-    .att('bitrate', '1000')
-    .cdata(`https://r3---sn-q4fl6nzy.gvt1.com/videoplayback/id/37685dc1cfc45f63/itag/106/source/dclk_video_ads/requiressl/yes/acao/yes/mime/video%2Fmp4/ctier/L/ip/0.0.0.0/ipbits/0/expire/1679400811/sparams/acao,ctier,expire,id,ip,ipbits,itag,mh,mime,mip,mm,mn,ms,mv,mvi,pl,requiressl,source/signature/58BA0D358A98DAC69521910CE9DED6B49257CAF1.20663062B1EA4F9025B631ED92EDF0281BB3B85A/key/cms1/cms_redirect/yes/mh/8O/mip/155.94.250.121/mm/28/mn/sn-q4fl6nzy/ms/nvh/mt/1679378132/mv/u/mvi/3/pl/20/file/file.mp4`)
-    .up()
-    .up()
-    .ele('TrackingEvents')
-    .ele('Tracking')
-    .att('event', 'start')
-    .cdata('https://example.com/start?offset=00:00:30')
-    .up()
-    .up()
-    .up()
-    .up()
-    .up()
-    .up()
-    .up()
-    .end({ pretty: true });
+app.use(helmet());
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.get('/vast/:contentId', (req, res) => {
+  const vast = xmlbuilder.create({
+    version: '1.0',
+    encoding: 'UTF-8'
+  })
+    .ele('VAST', {
+      'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+      'xsi:noNamespaceSchemaLocation': 'vast.xsd',
+      version: '3.0'
+    });
+
+  const ad = vast.ele('Ad', {
+    id: req.params.contentId,
+    sequence: '1'
+  });
+
+  const inline = ad.ele('InLine');
+
+  inline.ele('AdSystem', {version: '4.0'}).txt('simplevastserver-jkamiphi');
+  inline.ele('AdTitle', {}).dat(`Ad for content ${req.params.contentId}`);
+  inline.ele('Description').dat('This is sample companion ad tag with Linear ad tag.')
+  inline.ele('Impression', { id: 'impression-1' }).dat('http://example.com/impression');
+  inline.ele('Error').dat('http://example.com/error');
+
+  const creatives = inline.ele('Creatives');
+
+  const creative = creatives.ele('Creative', {
+    id: req.params.contentId,
+    sequence: '1'
+  });
+
+  const linear = creative.ele('Linear');
+  linear.ele('Duration', {}).dat('00:00:16');
+
+  const trackingEvents = linear.ele('TrackingEvents');
+
+  trackingEvents.ele('Tracking', {
+    event: 'start',
+    offset: '00:00:00'
+  }).dat('http://example.com/start');
+  trackingEvents.ele('Tracking', {
+    event: 'firstQuartile',
+    offset: '00:00:08'
+  }).dat('http://example.com/firstQuartile');
+  trackingEvents.ele('Tracking', {
+    event: 'midpoint',
+    offset: '00:00:15'
+  }).dat('http://example.com/midpoint');
+  trackingEvents.ele('Tracking', {
+    event: 'thirdQuartile',
+    offset: '00:00:22'
+  }).dat('http://example.com/thirdQuartile');
+  trackingEvents.ele('Tracking', {
+    event: 'complete',
+    offset: '00:00:30'
+  }).dat('http://example.com/complete');
+
+  const videoClicks = linear.ele('VideoClicks');
+
+  videoClicks.ele('ClickTracking', {}).dat('https://iabtechlab.com');
+
+  const mediaFiles = linear.ele('MediaFiles');
+  
+  mediaFiles
+    .ele('MediaFile', {
+      'id': '5241', 
+      'type': 'video/mp4', 
+      'bitrate': '500', 
+      'delivery': 'progressive', 
+      'maintainAspectRatio': '1',
+      'codec': '0',
+      'scalable': '1',
+      'maxBitrate': '1000',
+      'minBitrate': '360',
+    })
+    .dat('https://iab-publicfiles.s3.amazonaws.com/vast/VAST-4.0-Short-Intro.mp4');
 
   res.set('Content-Type', 'text/xml');
-  res.send(xml);
+  res.send(vast.end({pretty: true}));
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log('La aplicación está corriendo en el puerto 3000!');
+app.all("*", (req, res) => {
+  res.status(404).json({ 
+    message: "Ups! Parece que estás perdido, pero no te preocupes, ¡siempre puedes preguntarle a Siri! 🤖🗺️"
+  });
+});
+
+
+app.listen(PORT, () => {
+  console.log(`🚀 La aplicación está corriendo en el puerto ${PORT}!`);
 });
