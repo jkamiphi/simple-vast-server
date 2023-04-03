@@ -22,7 +22,7 @@ app.get('/vast/:contentId', (req, res) => {
     offset: 12,
     title: "Simple Ad",
     description: "Description",
-    type: "video/hls",
+    type: "application/x-mpegURL",
     breakId: "break-1",
     sourceId: "source-1"
   })

@@ -76,7 +76,6 @@ class AdsBuilder {
       type: type,
       bitrate: "1000",
       maintainAspectRatio: "1",
-      codec: "0",
       scalable: "1",
       width: width,
       height: height
