@@ -17,11 +17,12 @@ app.get('/vast/:contentId', (req, res) => {
 
   builder.addAdToVAST({
     duration: 30,
-    mediaFileUri: "https://iab-publicfiles.s3.amazonaws.com/vast/VAST-4.0-Short-Intro.mp4",
+    mediaFileUri: "https://stream.mux.com/8vbOjTwa23QoIXVt7aP78hSka1dniN5pLlATKO01pJzo.m3u8",
+    mediaFileDelivery: "streaming",
     offset: 12,
     title: "Simple Ad",
     description: "Description",
-    type: "video/mp4",
+    type: "video/hls",
     breakId: "break-1",
     sourceId: "source-1"
   })

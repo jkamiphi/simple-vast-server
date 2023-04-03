@@ -26,10 +26,13 @@ class AdsBuilder {
       mediaFileUri,
       offset,
       title,
+      mediaFileDelivery = "progressive",
       description = "",
       type = "video/mp4",
       breakId = "break-1",
-      sourceId = "source-1"
+      sourceId = "source-1",
+      width = "1280",
+      height = "720"
     } = ad;
 
     const adBreakElement = this.root.ele("vmap:AdBreak", {
@@ -69,9 +72,14 @@ class AdsBuilder {
     const mediaFiles = linear.ele("MediaFiles");
     mediaFiles.ele("MediaFile", {
       id: "1",
-      delivery: "progressive",
+      delivery: mediaFileDelivery,
       type: type,
-      bitrate: "1000"
+      bitrate: "1000",
+      maintainAspectRatio: "1",
+      codec: "0",
+      scalable: "1",
+      width: width,
+      height: height
     }).dat(mediaFileUri);
   }
 
